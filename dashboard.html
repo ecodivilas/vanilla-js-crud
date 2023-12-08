@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        th, td {
+          border: 1px solid black;
+          padding: 8px;
+          text-align: left;
+        }
+      </style>
+</head>
+<body>
+    <form id="addUserForm">
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
+        <input type="text" name="permission" placeholder="Permission">
+        <button type="submit">Add User</button>
+    </form>
+    
+    <form action="/submitEditUserForm" method="PUT">
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
+        <input type="text" name="permission" placeholder="Permission">
+        <button type="submit">Edit User</button>
+    </form>
+    <h2>User Table</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Permission</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="dataTable">
+        </tbody>
+    </table>
+</body>
+
+<script>
+    const refreshTable = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/getUsers');
+            const table = document.getElementById('dataTable');
+            table.innerHTML = '';
+            if (response.ok) {
+                const data = await response.json();
+                data.forEach(item => {
+                    const row = table.insertRow();
+                    Object.keys(item).forEach(key => {
+                        if (key !== 'id') {
+                            const cell = row.insertCell();
+                            cell.textContent = item[key];
+                        }
+                    });
+                    // Insert delete button
+                    const deleteCell = row.insertCell();
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.addEventListener('click', () => {
+                        const rowId = `row_${item.id}`;
+                        alert(rowId);
+                        // Add your delete functionality here
+                        // You can access the item's ID using item.id
+                    });
+                    deleteCell.appendChild(deleteButton);
+                });
+            } else {
+                console.error('Network response was not ok');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    const form = document.getElementById('addUserForm');
+    console.log(form)
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        const userDetails = {
+            username: e.target.username.value,
+            password: e.target.password.value,
+            permission: e.target.permission.value,
+        }
+        console.log(JSON.stringify(userDetails))
+    
+        const response = await fetch('http://localhost:3000/addUsers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userDetails),
+        });
+        const data = await response.json();
+        console.log(data);
+        refreshTable()
+    } catch (error) {
+        console.error('Error:', error);
+    }
+    });
+    
+    refreshTable()
+
+</script>
+
+</html>
