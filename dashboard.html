@@ -66,11 +66,15 @@
                     const deleteCell = row.insertCell();
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'Delete';
-                    deleteButton.addEventListener('click', () => {
-                        const rowId = `row_${item.id}`;
-                        alert(rowId);
-                        // Add your delete functionality here
-                        // You can access the item's ID using item.id
+                    deleteButton.addEventListener('click', async () => {
+                        try {
+                            const response = await fetch(`http://localhost:3000/deleteUser/${item.id}`, { method: 'DELETE' });
+                            if (response.ok) {
+                                refreshTable();
+                            }
+                        } catch (err) {
+                            console.log(err);
+                        }
                     });
                     deleteCell.appendChild(deleteButton);
                 });

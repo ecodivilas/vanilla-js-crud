@@ -55,7 +55,7 @@ app.get('/getUsers', async (req, res) => {
     }
 });
 
-app.delete('/deleteUsers', async (req, res) => {
+app.delete('/deleteUser/:id', async (req, res) => {
     try {
         await client.query('DELETE FROM users WHERE id = $1', [req.params.id]);
     } catch (err) {
